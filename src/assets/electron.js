@@ -17,7 +17,7 @@ var uncertainty_constant = {
     Electron
 */
 Electron = function(scene) { // constructor
-    // attach base object (the view);
+    // attach base object (the view), and add the object to the scene
     this.base_object = new ParticleSystem(scene);
 
     // define initial position
@@ -35,7 +35,7 @@ Electron = function(scene) { // constructor
     }
 
     // define initial velocity_certainty
-    this.velocity.certainty = 0;
+    this.velocity.certainty = 1;
 
     // define our confididence in its position;
     this.scale = this.calculate_uncertainty.position(this.velocity.certainty, this.calculate_time_out_of_trap());
@@ -43,6 +43,11 @@ Electron = function(scene) { // constructor
 };
 
 Electron.prototype = {
+    /*
+        convinience handlers
+    */
+    get radius(){ return this.scale; }, // scale = radius
+
     /*
         play mechanics
     */

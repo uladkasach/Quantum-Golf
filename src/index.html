@@ -4,26 +4,19 @@
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
     <title>Babylon - Ball</title>
     <script src="https://preview.babylonjs.com/babylon.js"></script> <!-- grab babylon -->
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> <!-- grab a babylon loader -->
     <script src="/node_modules/clientside-require/dist/bundle.js"></script> <!-- load clientside-require -->
     <script> window.require_global.BABYLON = BABYLON; </script> <!-- make BABYLON accessible across all -->
 </head>
 <body>
     <script>
         var render = async function(){ // wrap in async function to enable the await keyword
-            // define the engine
+            // define the canvas
             var canvas = document.querySelector("canvas");
 
-            // generate engine
-            engine = new BABYLON.Engine(canvas, true);
+            var render_world = await require("./worlds/test.js", {injection_require_type:'sync'});
+            render_world(canvas);
 
-            // generate scene
-            var create_scene = await require("./demo_scenes/test.js", {injection_require_type:'sync'});
-            var scene = create_scene(engine, canvas); // pass variables by injection
-
-            // run loop
-            engine.runRenderLoop(function() {
-                scene.render();
-            });
         }
         window.onload = render;
     </script>
