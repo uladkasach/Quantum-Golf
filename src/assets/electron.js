@@ -7,11 +7,12 @@ var ElectronSphere = require("./base/electron_sphere.js");
 */
 var uncertainty_constant = {
     position : {
-        time_weight : 1,
+        time_weight : 0.0025,
         scaler : 1,
     },
     velocity : 1,
 }
+var scale_threshold = 10;
 
 /*
     Electron
@@ -37,11 +38,11 @@ Electron = function(scene) { // constructor
     }
 
     // define initial velocity_certainty
-    this.velocity.certainty = 1;
+    this.velocity.certainty = 0; // position is known, velocity is undefined
     this.velocity.magnitude = 0; // used to scale uncertainty effect
 
-    // define our confididence in its position;
-    this.scale = this.calculate_uncertainty.position(this.velocity.certainty, this.calculate_time_out_of_trap());
+    // initialize scale by obeying uncertainty
+    this.obey_uncertainty_principle();
 
     // define if motion should be updated
     this.moving = false;
@@ -88,18 +89,31 @@ Electron.prototype = {
         // move to center
         var trap_center = (trap.base_object.getBoundingInfo().boundingBox.centerWorld );
         this.position = trap_center;
+        this.update_position();
 
         // drop all speed
         this.velocity = {
             x:0,
             y:0,
             z:0,
+            magnitude : 0,
         }
+
+        // update certainty to 1
+        this.velocity.certainty = 0; // position is known (trap center), velocity is "undefined" inside the potential well
+
+        // update that its not moving anymore
+        this.moving = false;
+
+        // update scale w/ uncertainty
+        this.obey_uncertainty_principle();
     },
     update : function(){
         if(this.moving){
             this.obey_uncertainty_principle();
             this.move(); // move
+            this.check_existance();
+            // TODO - update velocity_uncertainty based on position uncertainty
         }
     },
     launch : function(direction, magnitude, certainty){
@@ -128,7 +142,6 @@ Electron.prototype = {
 
         // update uncertainty in position; function of (time, certainty.velocity)
         this.scale = this.calculate_uncertainty.position(uncertainty_in_velocity, time_out_of_trap);
-        console.log(this.scale);
         this.update_scale();
 
         // update uncertainty in velocity; function of (time, certainty.velocity)
@@ -137,9 +150,10 @@ Electron.prototype = {
         if(this.velocity.z != 0) this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity) * this.velocity.magnitude;
     },
     check_existance : function(){ // if electron position becomes too uncertain, we can "no longer track it", and user looses
-        if(this.scale > this.scale_threshold){
-            this.launched = false;
-            this.isVisible = false;
+        if(this.scale > scale_threshold){
+            this.moving = false;
+            this.hide(); // hide it
+            // TODO - prompt reset button
         }
     },
 
@@ -153,6 +167,13 @@ Electron.prototype = {
     update_scale : function(){
         this.sphere.update_scale(this.scale);
         this.particle_system.update_scale(this.scale);
+    },
+
+    /*
+        visibility
+    */
+    hide : function(){
+        this.particle_system.hide();
     },
 
     /*
@@ -177,6 +198,7 @@ Electron.prototype = {
             */
             var uncertainty = Math.sqrt(1 + Math.pow(uncertainty_constant.position.time_weight, 2) * Math.pow(time_out_of_trap, 2)) / uncertainty_in_velocity;
             var scaled_uncertainty = uncertainty * uncertainty_constant.position.scaler;
+            if(isNaN(uncertainty)) process.exit();
             return scaled_uncertainty;
         },
         velocity : function(certainty){
@@ -213,6 +235,8 @@ Electron.prototype = {
 // TODO
 // 1. probabilistic collisions (includes tunneling)
 // 2. coulomb forces
+// 3. make electron move around in trap if in trap
+//      - make electron take up full trap as box emitter, that way its "unknown" where it is (?) not quite accurate cause it does move around inside but its a good visual approx
 
 
 // export the asset

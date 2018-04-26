@@ -1,5 +1,5 @@
 var BABYLON = window.require_global.BABYLON;
-var dev_mode = true;
+var dev_mode = false;
 
 var ElectronSphere = function(scene, radius){
     // defaults

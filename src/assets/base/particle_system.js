@@ -17,7 +17,7 @@ var ParticleSystem = function(scene){
     particleSystem.minSize = 0.1;
     particleSystem.maxSize = 1;
 
-    // particle creation rate
+    // start particle emission
     particleSystem.emitRate = 500;
 
     // Where the particles come from
@@ -27,7 +27,7 @@ var ParticleSystem = function(scene){
     this.update_scale(1);
 
     // Start the particle system
-    particleSystem.start();
+    this.show();
 }
 ParticleSystem.prototype = {
     update_position : function(position){
@@ -36,6 +36,12 @@ ParticleSystem.prototype = {
     },
     update_scale : function(scale){
         this.base_object.createSphereEmitter(scale); // update the scale of the sphere emitter, overwrite previous one
+    },
+    hide : function(){
+        this.base_object.stop(); // hide by setting emit rate = 0
+    },
+    show : function(){
+        this.base_object.start(); // show by setting emit rate not zero
     }
 }
 module.exports = ParticleSystem;
