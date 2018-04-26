@@ -1,6 +1,8 @@
 // https://www.babylonjs-playground.com/#TUNZFH
 
-module.exports = function (BABYLON, engine, canvas) {
+var BABYLON = window.require_global.BABYLON;
+
+module.exports = function (engine, canvas) {
     var scene = new BABYLON.Scene(engine);
 
     // Setup environment

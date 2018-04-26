@@ -1,3 +1,6 @@
+/* import BABYLON */
+var BABYLON = window.require_global.BABYLON;
+
 /*
     constants
 */
@@ -37,10 +40,6 @@ Electron = function(scene) { // constructor
     // define our confididence in its position;
     this.scale = this.calculate_uncertainty.position(this.velocity.certainty, this.calculate_time_out_of_trap());
 
-    // register on_keydown with babylon listener
-    BABYLON.Tools.RegisterTopRootEvents([
-        { name: "keydown", handler: this.on.keydown }
-    ]);
 };
 
 /*
@@ -138,3 +137,7 @@ Electron.prototype.check_existance = function(){ // if electron position becomes
 // TODO
 // 1. probabilistic collisions (includes tunneling)
 // 2. coulomb forces
+
+
+// export the asset
+module.exports = Electron;

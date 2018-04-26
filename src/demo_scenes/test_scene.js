@@ -1,6 +1,7 @@
+var BABYLON = window.require_global.BABYLON;
 
 
-module.exports = function (BABYLON, engine, canvas) {
+module.exports = function (engine, canvas) {
 
     // Create a basic BJS Scene object.
     var scene = new BABYLON.Scene(engine);

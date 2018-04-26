@@ -5,6 +5,7 @@
     <title>Babylon - Ball</title>
     <script src="https://preview.babylonjs.com/babylon.js"></script> <!-- grab babylon -->
     <script src="/node_modules/clientside-require/dist/bundle.js"></script> <!-- load clientside-require -->
+    <script> window.require_global.BABYLON = BABYLON; </script> <!-- make BABYLON accessible across all -->
 </head>
 <body>
     <script>
@@ -16,10 +17,8 @@
             engine = new BABYLON.Engine(canvas, true);
 
             // generate scene
-            // var create_scene = await require("./scenes/test_scene.js");
-            var create_scene = await require("./scenes/elec_proto.js");
-            var scene = create_scene(BABYLON, engine, canvas); // pass variables by injection
-            console.log(scene);
+            var create_scene = await require("./demo_scenes/test.js", {injection_require_type:'sync'});
+            var scene = create_scene(engine, canvas); // pass variables by injection
 
             // run loop
             engine.runRenderLoop(function() {
@@ -36,7 +35,6 @@
             margin  : 0;
             padding : 0;
         }
-
         canvas {
             width   : 100%;
             height  : 100%;
