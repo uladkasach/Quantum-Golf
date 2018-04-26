@@ -160,7 +160,7 @@ Electron.prototype = {
     /*
         particle system updaters
     */
-    update_position : function(position){
+    update_position : function(){
         this.sphere.update_position(this.position);
         this.particle_system.update_position(this.position);
     },

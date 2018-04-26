@@ -32,7 +32,7 @@ module.exports = async function (canvas) {
         var base_trap = new Trap(scene);
 
         var target_trap = new Trap(scene, "red");
-        target_trap.position({x:10, y:0, z:0});
+        target_trap.position({x:20, y:0, z:0});
 
         // create game manager
         var game_manager = new Game_Manager(electron, aimer, [base_trap, target_trap]);

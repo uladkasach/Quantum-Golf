@@ -26,6 +26,10 @@ var Aimer = function(scene){
     this.key_listening = false; // toggles key listeners - rather than removing them from blender
 }
 Aimer.prototype = {
+    get_position : function(){
+        var bab_pos = this.arrow.getBoundingInfo().boundingBox.centerWorld;
+        return {x: bab_pos.x, y:bab_pos.y, z:bab_pos.z};
+    },
     show : async function(){
         await this.promise_arrow;
         this.arrow.isVisible = true;
@@ -40,15 +44,9 @@ Aimer.prototype = {
     },
     initialize : async function(electron){
         await this.promise_arrow;
-        // define radius to be twise the electron radius
-        this.radius = electron.radius * 2;
-
-        // set the arrow radius away on x axis
-        this.arrow.position = {
-            x : electron.position.x + this.radius,
-            y : electron.position.y,
-            z : electron.position.z,
-        }
+        // define radius to be a little bigger than the electron radius
+        console.log(electron.radius);
+        this.radius = electron.radius + 1;
 
         // rotate so that the arrow is pointig out when at x axis offset
         this.arrow.rotation.z = Math.PI*3/2;
@@ -57,6 +55,16 @@ Aimer.prototype = {
         this.pivot = new BABYLON.TransformNode("root");
         this.pivot.position = electron.position;
         this.arrow.parent = this.pivot;
+
+        // adjust position relative to parent
+        console.log(electron.position);
+        this.arrow.position = {
+            x : this.radius,
+            y : 0,
+            z : 0,
+        }
+        console.log(this.arrow.position);
+        console.log(this.get_position());
 
         // enable key listeners
         this.key_listening = true;
@@ -72,6 +80,9 @@ Aimer.prototype = {
 
         // set pivot to null
         this.pivot = null;
+
+        // set parent = null
+        this.arrow.parent = null;
 
         // hide
         await this.hide();
@@ -123,7 +134,8 @@ Aimer.prototype = {
         }
     },
     get_direction : function(){
-        var current_position = (this.arrow.getBoundingInfo().boundingBox.centerWorld );
+        var current_position = this.get_position();
+        console.log(current_position);
         var electron_position = this.pivot.position;
         var position_difference = {
             x: current_position.x - electron_position.x,
