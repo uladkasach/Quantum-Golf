@@ -1,0 +1,23 @@
+{
+  "name": "quantum-golf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BarkIsWorseThanByte/Quantum-Golf.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BarkIsWorseThanByte/Quantum-Golf/issues"
+  },
+  "homepage": "https://github.com/BarkIsWorseThanByte/Quantum-Golf#readme",
+  "require": true,
+  "dependencies": {
+    "clientside-require": "^3.11.1"
+  }
+}

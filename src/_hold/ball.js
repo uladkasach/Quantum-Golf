@@ -8,14 +8,14 @@ var canvas;
 var camera, arrow;
 
 // The function onload is loaded when the DOM has been loaded
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     onload();
 }, false);
 
 /**
 * Onload function : creates the babylon engine and the scene
 */
-var onload = function () { 
+var onload = function () {
     // Engine creation
     canvas = document.getElementById("renderCanvas");
     engine = new BABYLON.Engine(canvas, true);

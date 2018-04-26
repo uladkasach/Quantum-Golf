@@ -8,18 +8,12 @@
 Arrow = function(size, scene) {
   // Call the super class BABYLON.Mesh
   BABYLON.Mesh.call(this, "arrow", scene);
-var vd;
-  //BABYLON.SceneLoader.ImportMesh("arrow", "assets/", "arrow.babylon", scene, function (meshes) {
-  //console.log("callback fired");
-  //vd= BABYLON.VertexData(meshes[0]);
-  //vd.applyToMesh(this, false);
-//}.bind(this));
 
-  // Creates a box 
+  // Creates a box
   var vd = BABYLON.VertexData.CreateBox(size);
   // Apply the box shape to our mesh
   vd.applyToMesh(this,false);
- 
+
   // Its position is in (0,0), and a little bit above the ground.
   this.position.x = 0;
   this.position.z = 4;
@@ -101,6 +95,3 @@ Arrow.prototype._initMovement = function() {
       }
     }
   };
-
-
-
