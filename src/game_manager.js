@@ -34,9 +34,11 @@ Game_Manager.prototype = {
     launch : function(){
         this.state.aiming = false;
         this.course.aimer.remove();
-        var direction = this.course.aimer.get_direction();
-        var magnitude = 0.05; // TODO get magnitude
-        var certainty = 0.05; // TODO get certainty
+        var aiming = this.course.aimer.get_aim();
+        console.log(aiming);
+        var direction = aiming.direction;
+        var magnitude = aiming.magnitude;
+        var certainty = aiming.certainty;
         this.course.electron.launch(direction, magnitude, certainty);
     },
 

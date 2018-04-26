@@ -3,10 +3,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
     <title>Babylon - Ball</title>
+    <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
     <script src="https://preview.babylonjs.com/babylon.js"></script> <!-- grab babylon -->
     <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> <!-- grab a babylon loader -->
     <script src="/node_modules/clientside-require/dist/bundle.js"></script> <!-- load clientside-require -->
-    <script> window.require_global.BABYLON = BABYLON; </script> <!-- make BABYLON accessible across all -->
+    <script>
+        window.require_global.BABYLON = BABYLON;  // pass babylon to modules
+        window.require_global.document = document; // pass document to modules
+    </script>
 </head>
 <body>
     <script>
@@ -27,6 +31,7 @@
             height  : 100%;
             margin  : 0;
             padding : 0;
+            font-family: 'Gugi', cursive;
         }
         canvas {
             width   : 100%;

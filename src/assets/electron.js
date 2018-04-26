@@ -117,6 +117,12 @@ Electron.prototype = {
         }
     },
     launch : function(direction, magnitude, certainty){
+        // ensure certainty is not 1
+        if(certainty > 0.9) certainty = 0.9; // otherwise we get way too large uncertainty
+        if(certainty < 0.4) certainty = Math.sqrt(certainty); 
+        console.log(magnitude);
+        console.log(certainty);
+
         // velocity =  direction vector * launch magnitude
         this.velocity.x = direction.x * magnitude;
         this.velocity.y = direction.y * magnitude;

@@ -1,4 +1,7 @@
 var BABYLON = window.require_global.BABYLON;
+var root_document = window.require_global.document;
+var view_loader = require("clientside-view-loader");
+var promise_aiming_ui = view_loader.load("/src/displays/aiming_ui").generate()
 
 var Aimer = function(scene){
     this.promise_arrow = BABYLON.SceneLoader.ImportMeshAsync(null, "/src/_static_resources/objects/", "arrow.obj", scene)
@@ -9,6 +12,11 @@ var Aimer = function(scene){
         .then((arrow)=>{
             this.arrow = arrow;
             this.arrow.isVisible = false; // hide it by default
+        })
+    this.promise_aiming_ui = promise_aiming_ui
+        .then((dom)=>{
+            this.aiming_ui = dom;
+            root_document.querySelector("html").appendChild(dom); // attach the ui to the root document
         })
     this.move = {
         left: false,
@@ -32,11 +40,14 @@ Aimer.prototype = {
     },
     show : async function(){
         await this.promise_arrow;
+        await this.promise_aiming_ui;
         this.arrow.isVisible = true;
+        this.aiming_ui.show();
     },
     hide : async function(){
         await this.promise_arrow;
         this.arrow.isVisible = false;
+        this.aiming_ui.hide();
     },
     position : async function(position) {
         await this.promise_arrow;
@@ -57,14 +68,11 @@ Aimer.prototype = {
         this.arrow.parent = this.pivot;
 
         // adjust position relative to parent
-        console.log(electron.position);
         this.arrow.position = {
             x : this.radius,
             y : 0,
             z : 0,
         }
-        console.log(this.arrow.position);
-        console.log(this.get_position());
 
         // enable key listeners
         this.key_listening = true;
@@ -100,11 +108,23 @@ Aimer.prototype = {
             d           68
         */
         var angle_magnitude = 0.05; // TODO - make rotation accelleration for increasing angle
-        if(event.keyCode == 37 || event.keyCode == 65){
+        if(event.keyCode == 37 || event.keyCode == 65){ // left or a
             this.move.left = true;
         }
-        if(event.keyCode == 39 || event.keyCode == 68){
+        if(event.keyCode == 39 || event.keyCode == 68){ // right or d
             this.move.right = true;
+        }
+        if(event.keyCode == 38){ // up
+            this.aiming_ui.update.magnitude_delta(1);
+        }
+        if(event.keyCode == 40){ // down
+            this.aiming_ui.update.magnitude_delta(-1);
+        }
+        if(event.keyCode == 87){ // w
+            this.aiming_ui.update.certainty_delta(1);
+        }
+        if(event.keyCode == 83){ // s
+            this.aiming_ui.update.certainty_delta(-1);
         }
     },
     on_keyup : function(event){
@@ -135,7 +155,6 @@ Aimer.prototype = {
     },
     get_direction : function(){
         var current_position = this.get_position();
-        console.log(current_position);
         var electron_position = this.pivot.position;
         var position_difference = {
             x: current_position.x - electron_position.x,
@@ -143,6 +162,17 @@ Aimer.prototype = {
             z: current_position.z - electron_position.z,
         }
         return position_difference;
+    },
+    get_aim : function(){
+        var vel_and_mag = this.aiming_ui.extract();
+        var direction = this.get_direction();
+        var certainty = vel_and_mag.certainty / 10; // scale to 0-1
+        var magnitude = vel_and_mag.magnitude / 10; // scale to 0-1
+        return {
+            direction : direction,
+            certainty : certainty,
+            magnitude : magnitude,
+        }
     },
 }
 
