@@ -31,6 +31,9 @@ module.exports = async function (canvas) {
         // create a trap
         var base_trap = new Trap(scene);
 
+        var green_trap = new Trap(scene, "green");
+        green_trap.position({x:0, y:30, z:0})
+
         var target_trap = new Trap(scene, "red");
         target_trap.position({x:20, y:0, z:0});
 
