@@ -45,6 +45,9 @@ Electron = function(scene) { // constructor
 
     // reference parent object for calculate_uncertainty object
     this.calculate_uncertainty.parent = this;
+
+    // launch time
+    this.leave_time = null;
 };
 
 Electron.prototype = {
@@ -56,6 +59,13 @@ Electron.prototype = {
     /*
         play mechanics
     */
+    set in_trap(status){ // setter, called by game_manager
+        var prior_status = this.bool_in_trap;
+        if(prior_status == true && status == false) this.leave_time = new Date(); // just left
+        if(prior_status == false && status == true) this.leave_time = null; // just got back
+        if(prior_status != this.bool_in_trap) this.bool_in_trap = status; // update status
+    },
+    get in_trap(){ return this.bool_in_trap },
     update : function(){
         if(this.moving){
             this.obey_uncertainty_principle();
@@ -87,12 +97,13 @@ Electron.prototype = {
 
         // update uncertainty in position; function of (time, certainty.velocity)
         this.scale = this.calculate_uncertainty.position(uncertainty_in_velocity, time_out_of_trap);
+        console.log(this.scale);
         this.update_scale();
 
         // update uncertainty in velocity; function of (time, certainty.velocity)
-        this.velocity.x += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
-        this.velocity.y += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
-        this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        if(this.velocity.x != 0) this.velocity.x += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        if(this.velocity.y != 0) this.velocity.y += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        if(this.velocity.z != 0) this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
     },
     check_existance : function(){ // if electron position becomes too uncertain, we can "no longer track it", and user looses
         if(this.scale > this.scale_threshold){
@@ -115,9 +126,8 @@ Electron.prototype = {
         Uncertainty Principle Calculations
     */
     calculate_time_out_of_trap : function(){
-        // TODO - upon detecting that we leave a trap, a timestamp should be set in object defining when we left it
-        // this function should determine how long ago we left it in seconds
-        return 0;
+        if(this.leave_time == null) return 0; // if leave time not set, its still in trap, return 0
+        return new Date() - this.leave_time; // if leave time is set, return differnce in time
     },
     calculate_uncertainty : {
         position : function(uncertainty_in_velocity, time_out_of_trap){
