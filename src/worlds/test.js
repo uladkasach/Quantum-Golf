@@ -2,6 +2,7 @@ var BABYLON = window.require_global.BABYLON;
 var Electron = require("./../assets/electron.js");
 var ParticleSystem = require("./../assets/particle_system.js");
 var Aimer = require("./../assets/aimer.js");
+var Game_Manager = require("./../game_manager.js");
 
 module.exports = async function (canvas) {
     // base objects
@@ -22,11 +23,16 @@ module.exports = async function (canvas) {
 
     // create aiming pointer
     var aimer = new Aimer(scene);
-    await aimer.initialize(electron);
+    //await aimer.initialize(electron);
+
+    // create game manager
+    var game_manager = new Game_Manager(electron, aimer);
 
     // run loop
     engine.runRenderLoop(function() {
+        electron.update();
         aimer.update();
+        game_manager.update();
         scene.render();
     });
 }

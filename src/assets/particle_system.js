@@ -28,9 +28,6 @@ var ParticleSystem = function(scene){
 
     // Start the particle system
     particleSystem.start();
-
-    // return particle system
-    return particleSystem;
 }
 ParticleSystem.prototype = {
     update_position : function(position){

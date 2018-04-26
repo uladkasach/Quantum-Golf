@@ -40,6 +40,8 @@ Electron = function(scene) { // constructor
     // define our confididence in its position;
     this.scale = this.calculate_uncertainty.position(this.velocity.certainty, this.calculate_time_out_of_trap());
 
+    // define if motion should be updated
+    this.moving = false;
 };
 
 Electron.prototype = {
@@ -51,6 +53,9 @@ Electron.prototype = {
     /*
         play mechanics
     */
+    update : function(){
+        if(this.moving) this.move(); // move
+    },
     calculate_time_out_of_trap : function(){
         // TODO - upon detecting that we leave a trap, a timestamp should be set in object defining when we left it
         // this function should determine how long ago we left it in seconds
@@ -64,6 +69,9 @@ Electron.prototype = {
 
         // velocity.certainty = certainty
         this.velocity.certainty = certainty; // a float from 0 to 1
+
+        // set that its moving
+        this.moving = true;
     },
     obey_uncertainty_principle : function(){ // update position (i.e., scale) and velocity based on uncertainty principle
         // update uncertainty in position; function of (time, certainty.velocity)
@@ -92,10 +100,10 @@ Electron.prototype = {
         particle system updaters
     */
     update_position : function(position){
-        this.base_object.update_position(position);
+        this.base_object.update_position(this.position);
     },
-    update_scale : function(scale){
-        this.base_object.update_scale(scale);
+    update_scale : function(){
+        this.base_object.update_scale(this.scale);
     },
 
     /*

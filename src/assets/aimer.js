@@ -16,6 +16,14 @@ var Aimer = function(scene){
     };
     this.inertia = 0;
     this.pivot = null;
+
+
+    // initialize key listeners
+    BABYLON.Tools.RegisterTopRootEvents([
+        { name: "keydown", handler: this.on_keydown.bind(this), },
+        { name: "keyup", handler: this.on_keyup.bind(this), },
+    ]);
+    this.key_listening = false; // toggles key listeners - rather than removing them from blender
 }
 Aimer.prototype = {
     show : async function(){
@@ -43,7 +51,6 @@ Aimer.prototype = {
             y : electron.position.y,
             z : electron.position.z,
         }
-        console.log(this.arrow.position);
 
         // rotate so that the arrow is pointig out when at x axis offset
         this.arrow.rotation.z = Math.PI*3/2;
@@ -53,11 +60,8 @@ Aimer.prototype = {
         this.pivot.position = electron.position;
         this.arrow.parent = this.pivot;
 
-        // assign key listeners
-        BABYLON.Tools.RegisterTopRootEvents([
-            { name: "keydown", handler: this.on_keydown.bind(this), },
-            { name: "keyup", handler: this.on_keyup.bind(this), },
-        ]);
+        // enable key listeners
+        this.key_listening = true;
 
         // display
         this.show();
@@ -66,6 +70,7 @@ Aimer.prototype = {
         await this.promise_arrow;
 
         // remove key listeners
+        this.key_listening = false;
 
         // set pivot to null
         this.pivot = null;
@@ -74,6 +79,7 @@ Aimer.prototype = {
         await this.hide();
     },
     on_keydown : function(event){
+        if(!this.key_listening) return; // skip if not listening
         /*
             left arrow	37
             up arrow	38
@@ -93,6 +99,7 @@ Aimer.prototype = {
         }
     },
     on_keyup : function(event){
+        if(!this.key_listening) return; // skip if not listening
         if(event.keyCode == 37 || event.keyCode == 65){
             this.move.left = false;
         }
@@ -116,7 +123,17 @@ Aimer.prototype = {
             var final_angle = left_angle + right_angle;
             this.pivot.rotate(BABYLON.Axis.Z, final_angle, BABYLON.Space.WORLD);
         }
-    }
+    },
+    get_direction : function(){
+        var current_position = (this.arrow.getBoundingInfo().boundingBox.centerWorld );
+        var electron_position = this.pivot.position;
+        var position_difference = {
+            x: current_position.x - electron_position.x,
+            y: current_position.y - electron_position.y,
+            z: current_position.z - electron_position.z,
+        }
+        return position_difference;
+    },
 }
 
 module.exports = Aimer;
