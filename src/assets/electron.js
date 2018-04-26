@@ -42,6 +42,9 @@ Electron = function(scene) { // constructor
 
     // define if motion should be updated
     this.moving = false;
+
+    // reference parent object for calculate_uncertainty object
+    this.calculate_uncertainty.parent = this;
 };
 
 Electron.prototype = {
@@ -54,12 +57,10 @@ Electron.prototype = {
         play mechanics
     */
     update : function(){
-        if(this.moving) this.move(); // move
-    },
-    calculate_time_out_of_trap : function(){
-        // TODO - upon detecting that we leave a trap, a timestamp should be set in object defining when we left it
-        // this function should determine how long ago we left it in seconds
-        return 0;
+        if(this.moving){
+            this.obey_uncertainty_principle();
+            this.move(); // move
+        }
     },
     launch : function(direction, magnitude, certainty){
         // velocity =  direction vector * launch magnitude
@@ -73,21 +74,25 @@ Electron.prototype = {
         // set that its moving
         this.moving = true;
     },
-    obey_uncertainty_principle : function(){ // update position (i.e., scale) and velocity based on uncertainty principle
-        // update uncertainty in position; function of (time, certainty.velocity)
-        this.scale = this.calculate_uncertainty.position();
-        this.update_scale();
-
-        // update uncertainty in velocity; function of (time, certainty.velocity)
-        this.velocity.x += this.calculate_uncertainty.effect_on_velocity();
-        this.velocity.y += this.calculate_uncertainty.effect_on_velocity();
-        this.velocity.z += this.calculate_uncertainty.effect_on_velocity();
-    },
     move : function(){ // update position of electron based on velocity
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
         this.position.z += this.velocity.z;
         this.update_position();
+    },
+    obey_uncertainty_principle : function(){ // update position (i.e., scale) and velocity based on uncertainty principle
+        // retreive measurements required for further calculations
+        var uncertainty_in_velocity = this.calculate_uncertainty.velocity(this.velocity.certainty);
+        var time_out_of_trap = this.calculate_time_out_of_trap();
+
+        // update uncertainty in position; function of (time, certainty.velocity)
+        this.scale = this.calculate_uncertainty.position(uncertainty_in_velocity, time_out_of_trap);
+        this.update_scale();
+
+        // update uncertainty in velocity; function of (time, certainty.velocity)
+        this.velocity.x += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        this.velocity.y += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
     },
     check_existance : function(){ // if electron position becomes too uncertain, we can "no longer track it", and user looses
         if(this.scale > this.scale_threshold){
@@ -109,6 +114,11 @@ Electron.prototype = {
     /*
         Uncertainty Principle Calculations
     */
+    calculate_time_out_of_trap : function(){
+        // TODO - upon detecting that we leave a trap, a timestamp should be set in object defining when we left it
+        // this function should determine how long ago we left it in seconds
+        return 0;
+    },
     calculate_uncertainty : {
         position : function(uncertainty_in_velocity, time_out_of_trap){
             /*
@@ -126,19 +136,18 @@ Electron.prototype = {
             var scaled_uncertainty = uncertainty * uncertainty_constant.position.scaler;
             return scaled_uncertainty;
         },
-        velocity : function(){
+        velocity : function(certainty){
             /*
                 the uncertainty in velocity is govered by, in our game, how specific the user wanted to be when launching the object
                 in reality uncertainty in position and volatility are intertwined,
                     but its simpler mechanics if we treat position mathematically
                     and treat velocity as something based off of the user - for gameplay sake
             */
-            var certainty = this.certainty;
             var uncertainty = 1 - certainty;
             var scaled_uncertainty = uncertainty * uncertainty_constant.velocity;
             return scaled_uncertainty;
         },
-        effect_on_velocity : function(){ // based on how specific the user wanted velocity to be, update the velocity
+        effect_on_velocity : function(uncertainty_in_velocity){ // based on how specific the user wanted velocity to be, update the velocity
             /*
                 generate random change in velocity_certainty based on certainty
                       define range as [-certainty/2, certainty/2]
@@ -146,7 +155,7 @@ Electron.prototype = {
             */
 
             // convert uncertainty into delta in velocity
-            var uncertainty_magnitude = this.calculate_uncertainty.velocity;
+            var uncertainty_magnitude = uncertainty_in_velocity;
             var half_magnitude = uncertainty_magnitude/2;
             var min = -1*half_magnitude;
             var max = half_magnitude
