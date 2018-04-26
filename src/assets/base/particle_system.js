@@ -5,7 +5,7 @@ var ParticleSystem = function(scene){
     var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
 
     // assign the particle system to this object
-    this.particle_system = particleSystem;
+    this.base_object = particleSystem;
 
     //Texture of each particle
     particleSystem.particleTexture = new BABYLON.Texture("/src/_static_resources/textures/flare.png", scene);
@@ -32,10 +32,10 @@ var ParticleSystem = function(scene){
 ParticleSystem.prototype = {
     update_position : function(position){
         // use the emitter to update where the particle system is
-        this.particle_system.emitter = new BABYLON.Vector3(position.x, position.y, position.z);
+        this.base_object.emitter = new BABYLON.Vector3(position.x, position.y, position.z);
     },
     update_scale : function(scale){
-        this.particle_system.createSphereEmitter(scale); // update the scale of the sphere emitter, overwrite previous one
+        this.base_object.createSphereEmitter(scale); // update the scale of the sphere emitter, overwrite previous one
     }
 }
 module.exports = ParticleSystem;

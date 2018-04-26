@@ -1,7 +1,7 @@
 /* import BABYLON */
 var BABYLON = window.require_global.BABYLON;
-var ParticleSystem = require("./particle_system.js");
-
+var ParticleSystem = require("./base/particle_system.js");
+var ElectronSphere = require("./base/electron_sphere.js");
 /*
     constants
 */
@@ -18,7 +18,9 @@ var uncertainty_constant = {
 */
 Electron = function(scene) { // constructor
     // attach base object (the view), and add the object to the scene
-    this.base_object = new ParticleSystem(scene);
+    this.sphere = new ElectronSphere(scene);
+    this.particle_system = new ParticleSystem(scene);
+    this.particle_system.parent = this.sphere;
 
     // define initial position
     this.position  = {
@@ -36,6 +38,7 @@ Electron = function(scene) { // constructor
 
     // define initial velocity_certainty
     this.velocity.certainty = 1;
+    this.velocity.magnitude = 0; // used to scale uncertainty effect
 
     // define our confididence in its position;
     this.scale = this.calculate_uncertainty.position(this.velocity.certainty, this.calculate_time_out_of_trap());
@@ -48,6 +51,7 @@ Electron = function(scene) { // constructor
 
     // launch time
     this.leave_time = null;
+    this.just_entered_trap = false;
 };
 
 Electron.prototype = {
@@ -61,11 +65,37 @@ Electron.prototype = {
     */
     set in_trap(status){ // setter, called by game_manager
         var prior_status = this.bool_in_trap;
-        if(prior_status == true && status == false) this.leave_time = new Date(); // just left
-        if(prior_status == false && status == true) this.leave_time = null; // just got back
-        if(prior_status != this.bool_in_trap) this.bool_in_trap = status; // update status
+        if(prior_status == true && status == false){
+            console.log("just left trap");
+            this.leave_time = new Date(); // just left
+        }
+        if(prior_status == false && status == true){
+            console.log("just arrived at a trap");
+            this.leave_time = null; // just got back
+            this.just_entered_trap = true;
+        } else {
+            this.just_entered_trap = false;
+        }
+        this.bool_in_trap = status; // update status
     },
     get in_trap(){ return this.bool_in_trap },
+    move_into_trap : function(trap){
+        console.log("move into trap");
+
+        // move into center coordinates of trap and drop all speed
+        // TODO - make it smooth
+
+        // move to center
+        var trap_center = (trap.base_object.getBoundingInfo().boundingBox.centerWorld );
+        this.position = trap_center;
+
+        // drop all speed
+        this.velocity = {
+            x:0,
+            y:0,
+            z:0,
+        }
+    },
     update : function(){
         if(this.moving){
             this.obey_uncertainty_principle();
@@ -77,6 +107,7 @@ Electron.prototype = {
         this.velocity.x = direction.x * magnitude;
         this.velocity.y = direction.y * magnitude;
         this.velocity.z = direction.z * magnitude;
+        this.velocity.magnitude = magnitude;
 
         // velocity.certainty = certainty
         this.velocity.certainty = certainty; // a float from 0 to 1
@@ -101,9 +132,9 @@ Electron.prototype = {
         this.update_scale();
 
         // update uncertainty in velocity; function of (time, certainty.velocity)
-        if(this.velocity.x != 0) this.velocity.x += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
-        if(this.velocity.y != 0) this.velocity.y += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
-        if(this.velocity.z != 0) this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity);
+        if(this.velocity.x != 0) this.velocity.x += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity) * this.velocity.magnitude;
+        if(this.velocity.y != 0) this.velocity.y += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity) * this.velocity.magnitude;
+        if(this.velocity.z != 0) this.velocity.z += this.calculate_uncertainty.effect_on_velocity(uncertainty_in_velocity) * this.velocity.magnitude;
     },
     check_existance : function(){ // if electron position becomes too uncertain, we can "no longer track it", and user looses
         if(this.scale > this.scale_threshold){
@@ -116,10 +147,12 @@ Electron.prototype = {
         particle system updaters
     */
     update_position : function(position){
-        this.base_object.update_position(this.position);
+        this.sphere.update_position(this.position);
+        this.particle_system.update_position(this.position);
     },
     update_scale : function(){
-        this.base_object.update_scale(this.scale);
+        this.sphere.update_scale(this.scale);
+        this.particle_system.update_scale(this.scale);
     },
 
     /*

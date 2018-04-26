@@ -29,7 +29,6 @@ Aimer.prototype = {
     show : async function(){
         await this.promise_arrow;
         this.arrow.isVisible = true;
-        console.log("here i am!");
     },
     hide : async function(){
         await this.promise_arrow;
@@ -43,7 +42,6 @@ Aimer.prototype = {
         await this.promise_arrow;
         // define radius to be twise the electron radius
         this.radius = electron.radius * 2;
-        console.log(this.radius);
 
         // set the arrow radius away on x axis
         this.arrow.position = {
