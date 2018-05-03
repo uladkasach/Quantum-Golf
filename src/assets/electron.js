@@ -53,6 +53,9 @@ Electron = function(scene) { // constructor
     // launch time
     this.leave_time = null;
     this.just_entered_trap = false;
+
+    // show not hidden
+    this.hidden = false;
 };
 
 Electron.prototype = {
@@ -91,6 +94,13 @@ Electron.prototype = {
         this.position = trap_center;
         this.update_position();
 
+        // reset movement
+        this.reset_movement();
+
+        // update scale w/ uncertainty
+        this.obey_uncertainty_principle();
+    },
+    reset_movement : function(){
         // drop all speed
         this.velocity = {
             x:0,
@@ -104,9 +114,6 @@ Electron.prototype = {
 
         // update that its not moving anymore
         this.moving = false;
-
-        // update scale w/ uncertainty
-        this.obey_uncertainty_principle();
     },
     update : function(){
         if(this.moving){
@@ -119,7 +126,7 @@ Electron.prototype = {
     launch : function(direction, magnitude, certainty){
         // ensure certainty is not 1
         if(certainty > 0.9) certainty = 0.9; // otherwise we get way too large uncertainty
-        if(certainty < 0.4) certainty = Math.sqrt(certainty); 
+        if(certainty < 0.4) certainty = Math.sqrt(certainty);
         console.log(magnitude);
         console.log(certainty);
 
@@ -166,7 +173,8 @@ Electron.prototype = {
     /*
         particle system updaters
     */
-    update_position : function(){
+    update_position : function(position){
+        if(typeof position != "undefined") this.position = position;
         this.sphere.update_position(this.position);
         this.particle_system.update_position(this.position);
     },
@@ -179,7 +187,14 @@ Electron.prototype = {
         visibility
     */
     hide : function(){
+        this.hidden = true;
         this.particle_system.hide();
+        this.reset_movement();
+    },
+    show : function(){
+        this.hidden = false;
+        this.obey_uncertainty_principle();
+        this.particle_system.show();
     },
 
     /*

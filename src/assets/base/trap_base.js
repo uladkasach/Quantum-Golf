@@ -6,7 +6,8 @@ var Trap_Base = function(scene, size, opacity, color){
 
     // casting
     if(color == "teal") color =  BABYLON.Color3.Teal();
-    if(color == "red") color =  BABYLON.Color3.Red()
+    if(color == "red") color =  BABYLON.Color3.Red();
+    if(color == "green") color = BABYLON.Color3.Green();
 
     // create mesh - http://www.babylonjs-playground.com/#2D4YCM
     var box = BABYLON.MeshBuilder.CreateBox("box", {size:size}, scene);

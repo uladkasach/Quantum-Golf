@@ -48,6 +48,7 @@ Game_Manager.prototype = {
     update : function(){
         this.determine_if_in_trap();
         this.toggle_aiming_if_needed();
+        this.reset_if_lost();
     },
     toggle_aiming_if_needed : function(){
         if(this.state.aiming) return; // if already aiming, no need to compute anything. done.
@@ -77,6 +78,12 @@ Game_Manager.prototype = {
     },
     determine_if_won : function(){
         // TODO, determien if we won
+    },
+    reset_if_lost : function(){
+        if(this.course.electron.hidden){
+            this.course.electron.update_position({x:0, y:0, z:0});
+            this.course.electron.show();
+        }
     }
 }
 module.exports = Game_Manager;
