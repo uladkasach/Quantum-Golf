@@ -4,7 +4,7 @@ var BABYLON = window.require_global.BABYLON;
     this file holds the overarching game logic
         - controls checking if user should be shown options to shoot electron
 */
-var Game_Manager = function(electron, aimer, traps){
+var Game_Manager = function(electron, aimer, traps, particles){
     // normalize data
     if(typeof traps == "undefined") traps = []; // if not defined, default to empty
     if(!Array.isArray(traps)) traps = [traps]; // if traps is not an array, cast to an array
@@ -14,6 +14,7 @@ var Game_Manager = function(electron, aimer, traps){
         electron : electron,
         aimer : aimer,
         traps : traps,
+        particles : particles,
     };
     this.state = {
         aiming : false,
@@ -72,6 +73,9 @@ Game_Manager.prototype = {
                 in_trap = true; // found an intersection
                 break;
             }
+            if(!in_trap){
+                this.coulomb_force();
+            }
         }
         this.course.electron.in_trap = in_trap; // update electrons state
         if(this.course.electron.just_entered_trap) this.course.electron.move_into_trap(target_trap);
@@ -79,6 +83,30 @@ Game_Manager.prototype = {
     determine_if_won : function(){
         // TODO, determien if we won
     },
+    coulomb_force : function(){
+		var COULOMB_CONSTANT = 0.06; //Modify to make gameplay work
+		//console.log("HERE");
+		//console.log(particles);
+		for(p in this.course.particles){
+			//console.log(p);
+			dx = this.course.electron.position.x - this.course.particles[p].sphere.position.x;
+			dy = this.course.electron.position.y - this.course.particles[p].sphere.position.y;
+			dz = this.course.electron.position.z - this.course.particles[p].sphere.position.z;
+			
+			dsq = dx*dx+dy*dy+dz*dz;
+			f1 = COULOMB_CONSTANT/dsq;
+			f = this.course.particles[p].charge*COULOMB_CONSTANT/dsq;
+			var fuck=1/100;
+			vx = f*dx/Math.sqrt(dsq);
+			vy = f*dy/Math.sqrt(dsq);
+			vz = f*dz/Math.sqrt(dsq);
+			if(vx!=0){
+				console.log(f);
+				console.log(vx);
+			}
+			this.course.electron.obey_coulomb_force(vx,vy,vz);
+		}
+	},
     reset_if_lost : function(){
         if(this.course.electron.hidden){
             this.course.electron.update_position({x:0, y:0, z:0});
