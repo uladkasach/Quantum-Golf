@@ -251,11 +251,17 @@ Electron.prototype = {
             return random_delta;
         },
     },
+    
+    obey_coulomb_force: function(vx, vy, vz){
+		this.velocity.x += vx;
+		this.velocity.y += vy;
+		this.velocity.z += vz;
+	}
 }
 
 // TODO
 // 1. probabilistic collisions (includes tunneling)
-// 2. coulomb forces
+// 2. coulomb forces (done)
 // 3. make electron move around in trap if in trap
 //      - make electron take up full trap as box emitter, that way its "unknown" where it is (?) not quite accurate cause it does move around inside but its a good visual approx
 
