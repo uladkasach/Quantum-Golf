@@ -8,9 +8,9 @@ game idea:
     - use protons and other point charges to help guide your electron to its destination
 
 implements:
-- <s> Heisenberg uncertainty principle, effects on velocity and position
-- Tunneling, through probabilistic collisions
-- Coulomb forces
+- Heisenberg uncertainty principle, effects on velocity and position
+- Tunneling, through probabilistic collisions *[In Progress]*
+- Coulomb forces *[In Progress]*
 
 ## Installation
 1. run `./install.sh`
